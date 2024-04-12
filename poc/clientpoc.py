@@ -6,6 +6,7 @@ SERVER_URL = "http://127.0.0.1:5000"
 
 commands = {} # keep history of commands executed on this client?
 
+''' the vision: register/create client ID to be associated with it '''
 # def log_client():
 #     response = requests.get(f"{SERVER_URL}/log-client")
 #     if response.status_code == 200:
@@ -31,13 +32,16 @@ def execute_command(cmd):
 def main():
     try:
         # client_id = log_client()
+        client_id = "12345"
         while True:
             cmd = get_command()
             if cmd == "disconnect":
                 print("disconnected")
+                # make it send "client [client_id] disconnected"
+                requests.post(SERVER_URL, params={'client': client_id, 'status': 'disconnected'}) # this works too
                 break
             result = execute_command(cmd)
-            requests.post(SERVER_URL, json={"result": result})
+            requests.post(SERVER_URL, json={"result": result}, params={'client': client_id, 'status': 'connected'}) # this goes hard
             print("hi from client")
             time.sleep(10)
     except:

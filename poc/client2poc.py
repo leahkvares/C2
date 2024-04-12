@@ -48,3 +48,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# change clients to only run given command once bc shit's hard to test on localhost
