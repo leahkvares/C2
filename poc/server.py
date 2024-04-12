@@ -47,6 +47,7 @@ def command_result():
     status = request.args.get('status')
     print("!!!!!!!!!!client command result:\n" + result)
     print(f"client is {status}") # hell yeah maybe put this somewhere else
+    # also note status=connected already appears in POST header
     return jsonify({"status": "success"})
 
 
