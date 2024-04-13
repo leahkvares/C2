@@ -8,7 +8,7 @@ commands = {} # keep history of commands executed on this client?
 
 ''' the vision: register/create client ID to be associated with the client '''
 # def log_client():
-#     response = requests.get(f"{SERVER_URL}/log-client") # what am i doing
+#     response = requests.get(f"{SERVER_URL}/log-client")
 #     if response.status_code == 200:
 #         return response.json()['client_id']
 #     else:

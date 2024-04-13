@@ -4,18 +4,19 @@ import time
 
 SERVER_URL = "http://127.0.0.1:5000"
 
-commands = {} # keep history of commands executed on this client?
+# commands = {} # keep history of commands executed on this client?
+# jk its in server now
 
-''' the vision: register/create client ID to be associated with the client '''
-# def log_client():
-#     response = requests.get(f"{SERVER_URL}/log-client") # what am i doing
-#     if response.status_code == 200:
-#         return response.json()['client_id']
-#     else:
-#         return None
+# client reaches out to server to get told its ID
+def log_client():
+    response = requests.get(f"{SERVER_URL}/log-client")
+    if response.status_code == 200:
+        return response.json()['client_id']
+    else:
+        return None
 
 def get_command():
-    response = requests.get(f"{SERVER_URL}/get-command") # GET command from server
+    response = requests.get(f"{SERVER_URL}/command") # GET command from server
     if response.status_code == 200: # if request was successful
         cmd = response.json().get('command')
         return cmd
