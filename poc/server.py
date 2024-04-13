@@ -4,6 +4,7 @@ import requests
 
 SERVER_URL = "http://127.0.0.1:5000"
 app = Flask(__name__)
+print("Drew was here")
 
 current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
 client_commands = {} # 'client_id': ['command1', 'command2'], etc.
@@ -26,7 +27,7 @@ def input():
 
 
 @app.route('/command', methods=['GET'])
-def send_command(): # pass client_id in         also current_command....?
+def send_command(command=None, client_id=None): # pass client_id in         also current_command....?
     global current_command
     cmd = current_command
     current_command = "whoami"
@@ -42,9 +43,12 @@ def send_command(): # pass client_id in         also current_command....?
 
 @app.route('/log-client', methods=['GET']) # this is not getting used yet
 def log_client():
-    client_id = request.form.get('command') # what should this be? hostname? ip? 
-    client_commands[client_id] = "whoami" # init?
-    print("this is the client_commands dictionary:", client_commands)
+    print("log_client function")
+    client_id = request.args.get('client_id')
+    # client_id = "test"
+    print(client_id)
+    # client_commands[client_id] = "whoami" # init?
+    # return jsonify(client_id=client_id, command="hostname -I")
     return jsonify(client_id=client_id)
 
 
@@ -59,5 +63,5 @@ def command_result():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
-    app.run(host='127.0.0.1', port=5000, threaded=True)
+    app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
+    # app.run(host='127.0.0.1', port=5000, threaded=True)

