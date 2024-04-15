@@ -38,6 +38,9 @@ def main():
         print("!!!!!!!!!!CLIENT ID:", CLIENT_ID) # get id by visiting server/log-client, which means that server runs log_client() and gives client an id
         while True:
             cmd = get_command()
+            if not cmd:
+                time.sleep(3)
+                continue
             if cmd == "disconnect":
                 print(f"client {CLIENT_ID} disconnected")
                 requests.post(SERVER_URL, params={'client_id': CLIENT_ID, 'status': 'disconnected'}) # this works too
@@ -46,8 +49,9 @@ def main():
             requests.post(SERVER_URL, json={"result": result}, params={'client': CLIENT_ID, 'status': 'connected'}) # this goes hard
             print("hi from client")
             time.sleep(10)
-    except:
+    except Exception as e:
         print("*crickets*")
+        print(e)
 
 if __name__ == "__main__":
     main()
