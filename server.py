@@ -49,8 +49,8 @@ def send_command():
     if client_id in client_commands: # if valid client id was parsed
         if cmd != client_commands[client_id]: # if not a repeat command
             return jsonify(status="sent", client_id=client_id, command=cmd) # send to a specific client
-        return jsonify(status="sent", command=cmd) # otherwise send to all
-    return jsonify(status="unsent", command="") # invalid client_id
+    return jsonify(status="sent", command=cmd) # otherwise send to all
+    # return jsonify(status="unsent", command="") # invalid client_id
 
 @app.route('/register-client', methods=['GET'])
 def register_client():
