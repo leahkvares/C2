@@ -3,7 +3,7 @@ import subprocess
 import time
 import platform
 
-SERVER_URL = "http://127.0.0.1:5005"
+SERVER_URL = "http://129.21.90.69:5005"
 CLIENT_ID = None
 
 # client reaches out to server to get told its ID
