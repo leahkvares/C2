@@ -9,7 +9,7 @@ CLIENT_ID = None
 # client reaches out to server to get told its ID
 def register():
     if (platform.system() == 'Darwin'): # mac
-        ip = subprocess.run("ifconfig | grep 129 | grep inet | awk '{print $2}'", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
+        ip = subprocess.run("ifconfig en0 | grep inet | grep -v inet6 | awk '{ print $2 }'", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
     elif (platform.system() == "Linux"):
         ip = subprocess.run("hostname -I", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
 
