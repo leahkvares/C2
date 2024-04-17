@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-import requests
+# import requests
 from datetime import datetime
+from termcolor import colored
+from ipaddress import ip_address, ip_network
 
 SERVER_URL = "http://127.0.0.1:5005"
 app = Flask(__name__)
@@ -10,6 +12,7 @@ print("Drew was here")
 
 client_commands = {} # 'client_id': 'command', 'timestamp' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
+groups = {}
 
 
 @app.route('/home')
@@ -55,7 +58,17 @@ def send_command():
 
 @app.route('/register-client', methods=['GET'])
 def register_client():
+    # client_id = request.remote_addr # ok just found out u could do this
     client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
+    
+    # client_subnet = str(ip_network(f"{client_id}/24", strict=False))  # extract subnet (/24)
+    group = client_id.split('.')[-1] # last octet
+    if group not in groups:
+        groups[group] = []
+    if client_id not in groups:
+        groups[group].append(client_id)
+    print(groups)
+
     if client_id not in clients:
         clients.append(client_id)
     if client_id not in client_commands:
@@ -68,7 +81,8 @@ def command_result():
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
     status = request.args.get('status')
-    print("\nclient command result:\n" + result + "\n")
+    print(colored("\nclient command result:\n" + result + "\n", "blue"))
+    # print("\nclient command result:\n" + result + "\n")
     return jsonify({"status": status})
 
 
