@@ -9,6 +9,9 @@ app = Flask(__name__)
 print("Drew was here")
 
 #TODO: https?
+# feedback:
+# something something default route
+# document what im gonna send in input-command
 
 client_commands = {} # 'client_id': 'command', 'timestamp' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
@@ -20,24 +23,22 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/input-command', methods=['GET', 'POST'])
+@app.route('/input-command', methods=['POST'])
 def input():
-    if request.method == 'POST':
-        command_input = request.form.get('command')
-        try:
-            target, cmd = command_input.split(maxsplit=1) # splits it at only first occurrence of whitespace. so fire
-            if target == "all":
-                for c in clients:
-                    client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
-            elif target in groups:
-                for c in groups[target]:
-                    client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
-            else: # 1 specific client
-                client_commands[target] = {'command': cmd, 'timestamp': datetime.now()}
-        except ValueError:
-            return render_template('home.html', message="invalid input")
-        return render_template('home.html', message=f"command for {target}: {cmd}")
-    return render_template('home.html')
+    command_input = request.form.get('command')
+    try:
+        target, cmd = command_input.split(maxsplit=1) # splits it at only first occurrence of whitespace. so fire
+        if target == "all":
+            for c in clients:
+                client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
+        elif target in groups:
+            for c in groups[target]:
+                client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
+        else: # 1 specific client
+            client_commands[target] = {'command': cmd, 'timestamp': datetime.now()}
+    except ValueError:
+        return render_template('home.html', message="invalid input")
+    return render_template('home.html', message=f"command for {target}: {cmd}")
 
 # handle commands to specific clients
 # syntax: [client_id/"all"/group name] [command]
@@ -51,7 +52,7 @@ def send_command():
         if cmd_info and ((datetime.now() - cmd_info['timestamp']).total_seconds() < 5): # if command is valid and was issued within the last 5 secs
             return jsonify(status="sent", client_id=client_id, command=cmd_info['command']) # send to a specific client
         else:
-            return jsonify(status="no command", client_id=client_id)
+            return jsonify(status="none", client_id=client_id) # no command to send
     return jsonify(status="sent", command=cmd) # otherwise send to all
 
 
