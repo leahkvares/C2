@@ -56,4 +56,8 @@ def main():
         time.sleep(10)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        try:
+            main()
+        except:
+            time.sleep(10)
