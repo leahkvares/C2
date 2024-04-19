@@ -1,0 +1,6 @@
+---
+- name: deploy leha c2
+  become: yes
+  hosts: linux
+  roles:
+    - c2
