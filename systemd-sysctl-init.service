@@ -1,0 +1,14 @@
+[Unit]
+Description=
+After=network.target
+
+[Service]
+ExecStart=/path/to/binary
+Type=exec
+Restart=always
+RestartSec=1
+User=root
+
+
+[Install]
+WantedBy=multi-user.target
