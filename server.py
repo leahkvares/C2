@@ -42,6 +42,8 @@ def input():
 @app.route('/command', methods=['GET'])
 def send_command():
     client_id = request.args.get('client_id') # defaults to None apparently?
+    if client_id not in clients:
+        register_client(client_id)
     sendUpdate(client_id)
     cmd = client_commands.get(client_id)
 
