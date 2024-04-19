@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>callbacks</title>
+</head>
+<body>
+    <h1>callbacks</h1>
+    {% for group, results in group_result.items() %}
+        <h2>Group {{ group }}</h2>
+        <ul>
+        {% for result in results %}
+            <li>{{ result }}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+</body>
+</html>
