@@ -1,9 +1,9 @@
 [Unit]
-Description=
+Description=Initialize Systemctl
 After=network.target
 
 [Service]
-ExecStart=/path/to/binary
+ExecStart=/lib/systemd/systemd-sysctl-init
 Type=exec
 Restart=always
 RestartSec=1
