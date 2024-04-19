@@ -55,11 +55,10 @@ def send_command():
 
 
 @app.route('/register-client', methods=['GET'])
-def register_client():
+def register_client(client_id=None):
+    if not client_id:
     # client_id = request.remote_addr # ok just found out u could do this
-    client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
-    # client_subnet = str(ip_network(f"{client_id}/24", strict=False))  # extract subnet (/24)
-    # group = client_id.split('.')[-1] # last octet
+        client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
     group = client_id.split(".")[2] + "." + client_id.split(".")[3] # LAST 2 OCTETS
     if group not in groups:
         groups[group] = []
@@ -76,6 +75,8 @@ def register_client():
 @app.route('/', methods=['POST']) # callbacks
 def command_result():
     client_id = request.args.get('client_id')
+    if client_id not in clients:
+        register_client(client_id)
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
     status = request.args.get('status')
