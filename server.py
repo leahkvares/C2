@@ -56,6 +56,7 @@ def send_command():
 
 @app.route('/register-client', methods=['GET'])
 def register_client(client_id=None):
+    global groups
     if not client_id:
     # client_id = request.remote_addr # ok just found out u could do this
         client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
@@ -64,8 +65,8 @@ def register_client(client_id=None):
         groups[group] = []
     if client_id not in groups:
         groups[group].append(client_id)
-    print(groups)
 
+    global clients
     if client_id not in clients:
         clients.append(client_id)
     if client_id not in client_commands:
