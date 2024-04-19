@@ -79,7 +79,7 @@ def command_result():
     result = request.json.get('result') # GET from client
     # wtf is a result rename that
     status = request.args.get('status')
-    client_commands[client_id]['output'] = result
+    client_commands[client_id]['output'] = result.strip()
     print(colored("\nclient command result:\n" + result + "\n", "blue"))
     return jsonify({"status": status})
 
