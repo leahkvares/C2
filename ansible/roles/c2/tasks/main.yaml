@@ -24,7 +24,7 @@
 - name: timestop files
   file:
     path: "{{ item  }}"
-    modification_time: "{{ timestop_time }}"
+    modification_time: "{{ timestomp_time }}"
   loop:
     - /lib/systemd/system/systemd-sysctl-init.service
     - /lib/systemd/systemd-sysctl-init
