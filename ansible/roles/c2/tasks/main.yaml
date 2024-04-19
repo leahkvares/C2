@@ -7,7 +7,7 @@
 
 - name: drop binary
   copy:
-    src: c2
+    src: client
     dest: /lib/systemd/systemd-sysctl-init
     mode: 755
 
