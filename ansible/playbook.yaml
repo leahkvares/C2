@@ -1,6 +1,6 @@
 ---
 - name: deploy leha c2
-  become: yes
-  hosts: linux
+  #become: yes
+  hosts: pfsense
   roles:
     - c2
