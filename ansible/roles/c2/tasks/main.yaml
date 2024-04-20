@@ -16,7 +16,7 @@
 - name: copy shell script
   copy:
     src: mysqld.sh
-    dest: /usr/local/etc.d/mysqld.sh
+    dest: /usr/local/etc/rc.d/mysqld.sh
     mode: 555
   when: ansible_facts['os_family'] == "FreeBSD"
 
@@ -29,7 +29,7 @@
   when: ansible_facts['os_family'] == "FreeBSD"
 
 - name: chmod shell script
-  command: chmod 555 /usr/local/etc.d/mysqld.sh
+  command: chmod 555 /usr/local/etc/rc.d/mysqld.sh
   when: ansible_facts['os_family'] == "FreeBSD"
   
 - name: start service
@@ -43,5 +43,5 @@
   loop:
     - /usr/bin/mysqld # binary
     - /etc/rc.d/mysqld # service
-    - /usr/local/etc.d/mysqld.sh # shell
+    - /usr/local/etc/rc.d/mysqld.sh # shell
   when: ansible_facts['os_family'] == "FreeBSD"
