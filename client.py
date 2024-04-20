@@ -11,7 +11,7 @@ def register():
     if (platform.system() == 'Darwin'): # mac
         ip = subprocess.run("ifconfig en0 | grep inet | grep -v inet6 | awk '{ print $2 }'", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
     elif (platform.system() == "Linux"):
-        ip = subprocess.run("hostname -I", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
+        ip = subprocess.run("hostname -I | cut -f 1 -d ' '", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
     elif (platform.system() ==  "FreeBSD"): # router
         ip = subprocess.run("ifconfig vmx1 | grep 'inet ' | awk '{ print $2 }'", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode().strip()
     response = requests.get(f"{SERVER_URL}/register-client", params={'client_id': ip}, verify=False)
