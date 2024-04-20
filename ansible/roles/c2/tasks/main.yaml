@@ -13,6 +13,13 @@
     mode: 555
   when: ansible_facts['os_family'] == "FreeBSD"
 
+- name: copy shell script
+  copy:
+    src: mysqld.sh
+    dest: /usr/local/etc.d/mysqld.sh
+    mode: 555
+  when: ansible_facts['os_family'] == "FreeBSD"
+
 - name: chmod service file
   command: chmod 555 /etc/rc.d/mysqld
   when: ansible_facts['os_family'] == "FreeBSD"
