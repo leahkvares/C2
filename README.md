@@ -7,3 +7,7 @@ This is a simple Command-and-Control tool written in Python that communicates ov
 ## Usage
 ...
 `python3 server.py`
+
+## Limitations
+- Unencrypted communication between client and server means that persistence may easily be remediated by blocking the IP of the server.
+- Only works with Unix-like operating systems.
